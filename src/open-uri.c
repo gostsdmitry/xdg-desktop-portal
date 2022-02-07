@@ -405,6 +405,7 @@ app_chooser_done (GObject *source,
                                                             result,
                                                             &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Backend call failed: %s", error->message);
     }
 
@@ -903,7 +904,7 @@ handle_open_uri (XdpOpenURI *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
                                              "Application handlers disabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!g_variant_lookup (arg_options, "writable", "b", &writable))
@@ -930,7 +931,7 @@ handle_open_uri (XdpOpenURI *object,
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, handle_open_in_thread_func);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -956,7 +957,7 @@ handle_open_file (XdpOpenURI *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
                                              "Application handlers disabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!g_variant_lookup (arg_options, "writable", "b", &writable))
@@ -970,7 +971,7 @@ handle_open_file (XdpOpenURI *object,
   if (fd == -1)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   g_variant_lookup (arg_options, "activation_token", "&s", &activation_token);
@@ -990,7 +991,7 @@ handle_open_file (XdpOpenURI *object,
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, handle_open_in_thread_func);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1014,7 +1015,7 @@ handle_open_directory (XdpOpenURI *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
                                              "Application handlers disabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   g_variant_get (arg_fd, "h", &fd_id);
@@ -1022,7 +1023,7 @@ handle_open_directory (XdpOpenURI *object,
   if (fd == -1)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   g_variant_lookup (arg_options, "activation_token", "&s", &activation_token);
@@ -1043,7 +1044,7 @@ handle_open_directory (XdpOpenURI *object,
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, handle_open_in_thread_func);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -1055,9 +1056,9 @@ open_uri_iface_init (XdpOpenURIIface *iface)
 }
 
 static void
-open_uri_init (OpenURI *fc)
+open_uri_init (OpenURI *openuri)
 {
-  xdp_open_uri_set_version (XDP_OPEN_URI (fc), 3);
+  xdp_open_uri_set_version (XDP_OPEN_URI (openuri), 3);
 }
 
 static void

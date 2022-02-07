@@ -115,7 +115,7 @@ handle_trash_file (XdpTrash *object,
 
   xdp_trash_complete_trash_file (object, invocation, NULL, result);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -125,9 +125,9 @@ trash_iface_init (XdpTrashIface *iface)
 }
 
 static void
-trash_init (Trash *fc)
+trash_init (Trash *trash)
 {
-  xdp_trash_set_version (XDP_TRASH (fc), 1);
+  xdp_trash_set_version (XDP_TRASH (trash), 1);
 }
 
 static void

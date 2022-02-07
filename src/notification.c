@@ -29,7 +29,6 @@
 #include "request.h"
 #include "permissions.h"
 #include "xdp-dbus.h"
-#include "xdp-dbus.h"
 #include "xdp-utils.h"
 
 #define PERMISSION_TABLE "notifications"
@@ -114,6 +113,7 @@ add_done (GObject *source,
 
   if (!xdp_impl_notification_call_add_notification_finish (impl, result, &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Backend call failed: %s", error->message);
     }
   else
@@ -501,7 +501,7 @@ notification_handle_add_notification (XdpNotification *object,
     {
       g_prefix_error (&error, "invalid notification: ");
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   task = g_task_new (object, NULL, NULL, NULL);
@@ -510,7 +510,7 @@ notification_handle_add_notification (XdpNotification *object,
 
   xdp_notification_complete_add_notification (object, invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -523,6 +523,7 @@ remove_done (GObject *source,
 
   if (!xdp_impl_notification_call_remove_notification_finish (impl, result, &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Backend call failed: %s", error->message);
     }
   else
@@ -555,7 +556,7 @@ notification_handle_remove_notification (XdpNotification *object,
 
   xdp_notification_complete_remove_notification (object, invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void

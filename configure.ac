@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.10.0])
+AC_INIT([xdg-desktop-portal],[1.13.0])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -171,7 +171,8 @@ fi
 
 GLIB_TESTS
 
-PKG_CHECK_MODULES(FUSE, [fuse])
+PKG_CHECK_MODULES(FUSE3, [fuse3 >= 3.10.0])
+AC_CHECK_FUNCS(renameat2)
 
 AC_CONFIG_FILES([
 Makefile

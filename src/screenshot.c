@@ -144,6 +144,7 @@ screenshot_done (GObject *source,
                                                    result,
                                                    &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("A backend call failed: %s", error->message);
     }
 
@@ -183,7 +184,7 @@ handle_screenshot (XdpScreenshot *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -205,7 +206,7 @@ handle_screenshot (XdpScreenshot *object,
 
   xdp_screenshot_complete_screenshot (object, invocation, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -225,6 +226,7 @@ pick_color_done (GObject *source,
                                                    result,
                                                    &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("A backend call failed: %s", error->message);
     }
 
@@ -262,7 +264,7 @@ handle_pick_color (XdpScreenshot *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -284,7 +286,7 @@ handle_pick_color (XdpScreenshot *object,
 
   xdp_screenshot_complete_pick_color (object, invocation, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -295,9 +297,9 @@ screenshot_iface_init (XdpScreenshotIface *iface)
 }
 
 static void
-screenshot_init (Screenshot *fc)
+screenshot_init (Screenshot *screenshot)
 {
-  xdp_screenshot_set_version (XDP_SCREENSHOT (fc), 2);
+  xdp_screenshot_set_version (XDP_SCREENSHOT (screenshot), 2);
 }
 
 static void

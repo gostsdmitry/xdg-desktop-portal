@@ -125,7 +125,7 @@ struct _XdpAppInfo {
         {
           GKeyFile *keyfile;
 	   /* pid namespace mapping */
-          GMutex *pidns_lock;
+          GMutex pidns_lock;
           ino_t   pidns_id;
         } flatpak;
       struct
@@ -335,6 +335,9 @@ xdp_app_info_remap_path (XdpAppInfo *app_info,
       else if (g_str_has_prefix (path, "/run/flatpak/app/"))
         return g_build_filename (g_get_user_runtime_dir (), "app",
                                  path + strlen ("/run/flatpak/app/"), NULL);
+      else if (g_str_has_prefix (path, "/run/flatpak/doc/"))
+        return g_build_filename (g_get_user_runtime_dir (), "doc",
+                                 path + strlen ("/run/flatpak/doc/"), NULL);
       else if (g_str_has_prefix (path, "/var/config/"))
         return g_build_filename (g_get_home_dir (), ".var", "app",
                                  app_info->id, "config",
@@ -1919,13 +1922,15 @@ xdg_app_info_ensure_pidns (XdpAppInfo  *app_info,
                            GError     **error)
 {
   g_autoptr(JsonNode) root = NULL;
-  xdp_lockguard GMutex *guard = NULL;
+  g_autoptr(GMutexLocker) guard = NULL;
   xdp_autofd int fd = -1;
   pid_t pid;
   ino_t ns;
   int r;
 
-  guard = xdp_auto_lock_helper (app_info->u.flatpak.pidns_lock);
+  g_assert (app_info->kind == XDP_APP_INFO_KIND_FLATPAK);
+
+  guard = g_mutex_locker_new (&(app_info->u.flatpak.pidns_lock));
 
   if (app_info->u.flatpak.pidns_id != 0)
     return TRUE;
